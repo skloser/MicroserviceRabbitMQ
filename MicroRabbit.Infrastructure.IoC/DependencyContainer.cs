@@ -26,7 +26,14 @@ namespace MicroRabbit.Infrastructure.IoC
         {
 
             //Domain bus
-            services.AddTransient<IEventBus, RabbitMQBus>();
+            services.AddSingleton<IEventBus, RabbitMQBus>(sp =>
+            {
+                var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
+                return new RabbitMQBus(sp.GetService<IMediator>(), scopeFactory);
+            });
+
+            //Sibscriptions
+            services.AddTransient<TransferEventHandler>();
 
             //Domain events
             services.AddTransient<IEventHandler<TransferCreatedEvent>, TransferEventHandler>();
